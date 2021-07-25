@@ -3,7 +3,9 @@
 
 import logging
 
-from ..types import Part, TensorBuffer3D, Vector2D
+from typing import Tuple
+
+from ..types import Part, TensorBuffer3D, Vector2D, Padding
 from ..keypoints import NUM_KEYPOINTS
 
 
@@ -32,6 +34,16 @@ def getImageCoords(
         x=part.heatmap_x * outputStride + offset_point.x,
         y=part.heatmap_y * outputStride + offset_point.y
     )
+
+
+def getScale(
+    height: int, width: int,
+    input_resolution_x: int, input_resolution_y: int,
+    padding: Padding
+) -> Tuple[float, float]:
+    scale_x = input_resolution_x / (padding.top + padding.bottom + height)
+    scale_y = input_resolution_y / (padding.left + padding.right + width)
+    return scale_x, scale_y
 
 
 def clamp(a: int, min_value: int, max_value: int) -> int:

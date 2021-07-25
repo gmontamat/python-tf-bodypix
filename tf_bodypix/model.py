@@ -31,10 +31,14 @@ from tf_bodypix.bodypix_js_utils.util import (
     Padding
 )
 
-from tf_bodypix.bodypix_js_utils.types import Pose
+from tf_bodypix.bodypix_js_utils.types import Pose, PersonSegmentation, PartSegmentation
 
 from tf_bodypix.bodypix_js_utils.multi_person.decode_multiple_poses import (
     decodeMultiplePoses
+)
+
+from tf_bodypix.bodypix_js_utils.multi_person.decode_instance_masks import (
+    decodePersonInstanceMask, decodePersonInstancePartMask
 )
 
 
@@ -322,7 +326,7 @@ class BodyPixResultWrapper:
             displacementsFwdBuffer=np.asarray(self.displacement_fwd[0]),
             displacementsBwdBuffer=np.asarray(self.displacement_bwd[0]),
             outputStride=self.output_stride,
-            maxPoseDetections=2
+            maxPoseDetections=10
         )
         scaled_poses = scaleAndFlipPoses(
             poses,
@@ -334,6 +338,27 @@ class BodyPixResultWrapper:
             flipHorizontal=False
         )
         return scaled_poses
+
+    def get_person_segmentation(
+            self, threshold: float, resize_method: str = DEFAULT_RESIZE_METHOD,
+            min_pose_score: float = 0.2, refine_steps: int = 8
+    ) -> List[PersonSegmentation]:
+        assert self.long_offsets is not None
+        return decodePersonInstanceMask(
+            segmentation=self.get_mask(
+                threshold, dtype=np.float32, resize_method=resize_method
+            ),
+            long_offsets=np.asarray(self.long_offsets[0]),
+            poses=self.get_poses(),
+            height=self.original_size.height,
+            width=self.original_size.width,
+            stride=self.output_stride,
+            in_height=self.model_input_size.height,
+            in_width=self.model_input_size.width,
+            padding=self.padding,
+            min_pose_score=min_pose_score,
+            refine_steps=refine_steps
+        )
 
 
 class BodyPixModelWrapper:

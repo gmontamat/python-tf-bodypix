@@ -36,3 +36,24 @@ class Keypoint(NamedTuple):
 class Pose(NamedTuple):
     keypoints: Dict[int, Keypoint]
     score: float
+
+
+class Padding(NamedTuple):
+    top: int
+    bottom: int
+    left: int
+    right: int
+
+
+class PersonSegmentation(NamedTuple):
+    data: np.ndarray
+    width: int
+    height: int
+    pose: Pose
+
+
+class PartSegmentation(NamedTuple):
+    data: np.ndarray
+    width: int
+    height: int
+    pose: Pose
