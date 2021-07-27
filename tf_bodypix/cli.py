@@ -512,6 +512,28 @@ class DrawPoseSubCommand(AbstractWebcamFilterSubCommand):
         return DrawPoseApp(args)
 
 
+class DrawPersonSegmentationApp(AbstractWebcamFilterApp):
+    def get_output_image(self, image_array: np.ndarray) -> np.ndarray:
+        result = self.get_bodypix_result(image_array)
+        self.timer.on_step_start('get_person_segmentation')
+        person_segmentation = result.get_person_segmentation(self.args.threshold)
+        LOGGER.debug('number of people: %d', len(person_segmentation))
+        output_image = draw_poses(
+            image_array.copy(), [person.pose for person in person_segmentation],
+            keypoints_color=(255, 100, 100),
+            skeleton_color=(100, 100, 255)
+        )
+        return output_image
+
+
+class DrawPersonSegmentationSubCommand(AbstractWebcamFilterSubCommand):
+    def __init__(self):
+        super().__init__("draw-person-segmentation", "Draws person segmentation")
+
+    def get_app(self, args: argparse.Namespace) -> AbstractWebcamFilterApp:
+        return DrawPersonSegmentationApp(args)
+
+
 class BlurBackgroundApp(AbstractWebcamFilterApp):
     def get_output_image(self, image_array: np.ndarray) -> np.ndarray:
         result = self.get_bodypix_result(image_array)
@@ -602,6 +624,7 @@ SUB_COMMANDS: List[SubCommand] = [
     ConvertToTFLiteSubCommand(),
     DrawMaskSubCommand(),
     DrawPoseSubCommand(),
+    DrawPersonSegmentationSubCommand(),
     BlurBackgroundSubCommand(),
     ReplaceBackgroundSubCommand()
 ]
