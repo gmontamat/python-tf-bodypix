@@ -128,7 +128,8 @@ def decodeMultipleMasksCPU(
                 )
                 if k_min >= 0:
                     data_arrays[k_min][n] = 1
-    return np.stack(data_arrays)
+    # Reshape data into 2D mask
+    return np.stack([data.reshape(height, width) for data in data_arrays])
 
 
 def decodeMultiplePartMasksCPU(
@@ -156,4 +157,5 @@ def decodeMultiplePartMasksCPU(
                 )
                 if k_min >= 0:
                     data_arrays[k_min][n] = part_segmentation[n]
-    return np.stack(data_arrays)
+    # Reshape data into 2D mask
+    return np.stack([data.reshape(height, width) for data in data_arrays])

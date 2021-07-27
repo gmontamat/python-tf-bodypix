@@ -44,8 +44,9 @@ def decodePersonInstanceMask(
         raise NotImplementedError
     else:
         person_segmentation_data = decodeMultipleMasksCPU(
-            segmentation, long_offsets, poses_above_score, height, width,
-            stride, in_height, in_width, padding, refine_steps
+            np.asarray(segmentation).flatten(), np.asarray(long_offsets).flatten(),
+            poses_above_score, height, width, stride, in_height, in_width,
+            padding, refine_steps
         )
     return [
         PersonSegmentation(data, width, height, poses_above_score[i])
@@ -68,9 +69,9 @@ def decodePersonInstancePartMask(
         raise NotImplementedError
     else:
         part_segmentations_by_person_data = decodeMultiplePartMasksCPU(
-            segmentation, long_offsets, part_segmentation,
-            poses_above_score, height, width, stride, in_height, in_width, padding,
-            refine_steps
+            np.asarray(segmentation).flatten(), np.asarray(long_offsets).flatten(),
+            np.asarray(part_segmentation).flatten(), poses_above_score,
+            height, width, stride, in_height, in_width, padding, refine_steps
         )
     return [
         PartSegmentation(data, width, height, poses_above_score[k])
