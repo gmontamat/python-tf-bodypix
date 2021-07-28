@@ -128,6 +128,17 @@ def decodeMultipleMasksCPU(
                 )
                 if k_min >= 0:
                     data_arrays[k_min][n] = 1
+    # TODO: verify optimized version
+    # for n in np.argwhere(segmentation == 1).flatten().tolist():
+    #     j = n % width
+    #     i = (n - j) // width
+    #     k_min = matchEmbeddingToInstance(
+    #         Pair(j, i), long_offsets, poses_above_score, num_kpt_for_matching,
+    #         pad_t, pad_l, scale_x, scale_y, output_resolution_x, height, width,
+    #         stride, refine_steps
+    #     )
+    #     if k_min >= 0:
+    #         data_arrays[k_min][n] = 1
     # Reshape data into 2D mask
     return np.stack([data.reshape(height, width) for data in data_arrays])
 
@@ -145,6 +156,7 @@ def decodeMultiplePartMasksCPU(
     pad_t, pad_l = padding.top, padding.left
     scale_x, scale_y = getScale(height, width, in_height, in_width, padding)
     output_resolution_x, _ = getOutputResolution(in_height, in_width, stride)
+    # TODO: optimize this double for-loop with np.argwhere
     for i in range(height):
         for j in range(width):
             n = i * width + j
