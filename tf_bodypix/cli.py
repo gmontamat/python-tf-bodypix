@@ -42,10 +42,14 @@ from tf_bodypix.sink import (
     get_show_image_output_sink
 )
 try:
-    from tf_bodypix.draw import draw_poses
+    from tf_bodypix.draw import draw_poses, draw_person_segmentation
 except ImportError as exc:
     _draw_import_exc = exc
+
     def draw_poses(*_, **__):  # type: ignore
+        raise _draw_import_exc
+
+    def draw_person_segmentation(*_, **__):  # type: ignore
         raise _draw_import_exc
 
 
@@ -518,10 +522,11 @@ class DrawPersonSegmentationApp(AbstractWebcamFilterApp):
         self.timer.on_step_start('get_person_segmentation')
         person_segmentation = result.get_person_segmentation(self.args.threshold)
         LOGGER.debug('number of people: %d', len(person_segmentation))
-        output_image = draw_poses(
-            image_array.copy(), [person.pose for person in person_segmentation],
+        output_image = draw_person_segmentation(
+            image_array.copy(), person_segmentation,
             keypoints_color=(255, 100, 100),
-            skeleton_color=(100, 100, 255)
+            skeleton_color=(100, 100, 255),
+            randomize_colors=True
         )
         return output_image
 
